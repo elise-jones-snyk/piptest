@@ -1,13 +1,31 @@
-name: Example workflow for Python using Snyk 
-on: pull_request
+name: Example workflow for Python using Snyk and Check Signed Commits
+
+on: 
+  pull_request: 
+  pull_request_target: 
+
 jobs:
+  # Job 1: Run Snyk to check for vulnerabilities
   security:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - name: Run Snyk to check for vulnerabilities
-      uses: snyk/actions/python@master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        args: --file=Pipfile
+      - name: Checkout code
+        uses: actions/checkout@v3  # Updated to the latest version
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/python@v1  # It's better to specify the correct version tag
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --file=Pipfile
+
+  # Job 2: Check signed commits in PR
+  check-signed-commits:
+    name: Check signed commits in PR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Check signed commits in PR
+        uses: 1Password/check-signed-commits-action@v1
+
